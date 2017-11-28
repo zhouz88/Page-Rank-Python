@@ -56,7 +56,9 @@ def buildMatrix(file):
 #recursively solve the iterations using stochastic adjacency matrix
 def calculate(second_graph, M):
     global iterations
-    third_graph = BETA*(M.dot(second_graph)) + (1 - BETA)*second_graph
+    len = M[0].size
+    vector = [1.0/len for i in range(len)]
+    third_graph = BETA*(M.dot(second_graph)) + (1 - BETA)*vector
     iterations += 1
     if check(second_graph, third_graph):
         return third_graph
