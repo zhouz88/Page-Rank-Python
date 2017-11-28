@@ -53,10 +53,10 @@ def buildMatrix(file):
     graph = np.array(matrix)
     return graph
 
-#recursively solve the iterations
+#recursively solve the iterations using stochastic adjacency matrix
 def calculate(second_graph, M):
     global iterations
-    third_graph = (1 - BETA)*(M.dot(second_graph)) + BETA*second_graph
+    third_graph = BETA*(M.dot(second_graph)) + (1 - BETA)*second_graph
     iterations += 1
     if check(second_graph, third_graph):
         return third_graph
