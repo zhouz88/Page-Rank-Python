@@ -1,28 +1,30 @@
 import numpy as np
-BETA = 0.85
+
 iterations = 0
 
 # Read graph from file and return the HashMap of "startnodes counting" and a set of total nodes, and a list of all edges
 def readGraph(file):
     graph_file = open(file, 'r')
     count_map = {}
+    edge_list = []
     line1 = graph_file.readline()
-    res = []
     count_set = set()
     while line1:
         edge = line1.split(" ")
-        count_set.add(int(edge[0]))
-        count_set.add(int(edge[1]))
-        if int(edge[0]) in count_map:
-            tmp = count_map[int(edge[0])]
-            count_map[int(edge[0])] = tmp +1
+        start_node = int(edge[0])
+        end_node = int(edge[1])
+        count_set.add(start_node)
+        count_set.add(end_node)
+        if start_node in count_map:
+            tmp = count_map[start_node]
+            count_map[start_node] = tmp +1
         else:
-            count_map[int(edge[0])] = 1
-        res.append([int(edge[0]), int(edge[1])])
+            count_map[start_node] = 1
+        edge_list.append([start_node, end_node])
         line1 = graph_file.readline()
-    return [count_map, count_set, res]
+    return count_map, count_set, edge_list
 
-# build the M based on if the graph contains dangling nodes
+# build the transition_matrix based on if the graph contains dangling nodes
 def buildMatrix(file):
     read_graph = readGraph(file)
     count_map = read_graph[0]
@@ -36,54 +38,49 @@ def buildMatrix(file):
     for p in res:
         matrix[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
 
-    # check if dangling nodes in the graph, we choose the easier way. So we set all the column vector 1.0/matrix_length
-    for i in range(len(matrix)):
+    # check if dangling nodes in the graph, choose the easier way. So set all the column vector 1.0/matrix_length
+    for i in range(size):
         if i not in count_map:
-            for j in range(len(matrix)):
-               matrix[j][i] = 1.0/len(matrix)
-               
-    '''
-    if flag:
-        for i in range(size):
             for j in range(size):
-                matrix[i][j] = (1 - BETA)*matrix[i][j]
-                matrix[i][j] += (BETA)*1.0/size
-    '''
+               matrix[j][i] = 1.0/len(matrix)
     
     graph = np.array(matrix)
     return graph
 
-#recursively solve the iterations using stochastic adjacency matrix
-def calculate(second_graph, M):
+#recursively solve the iterations using the transition matrix
+def calculate(old_rank, M, vector, BETA):
     global iterations
-    len = M[0].size
-    vector = [1.0/len for i in range(len)]
-    third_graph = BETA*(M.dot(second_graph)) + (1 - BETA)*vector
+    new_rank = BETA*(M.dot(old_rank)) + (1 - BETA)*vector
     iterations += 1
-    if check(second_graph, third_graph):
-        return third_graph
-    print(third_graph)
-    return calculate(third_graph, M)
+    
+    if check(old_rank, new_rank):
+        return new_rank
+    
+    return calculate(new_rank, M, vector, BETA)
 
-# check if iterations is done
+# check if iterations are done
 def check(first, second):
     for i in range(len(first)):
-        if abs(first[i] - second[i]) > 1e-6:
+        if abs(first[i] - second[i]) >= 1e-6:
             return False
     return True
 
 def main():
-    s = input("Please enter the txt file path in your computer such as: /Users/xxx.txt ")
-    M = buildMatrix(s)
-    len = M[0].size
-    ori = [1.0/len for i in range(len)]
-    res = calculate(np.array(ori), M)
+    s = input("Please enter the txt file path in your computer: ")
+    BETA = float(input('Please enter the damping factor BETA: '))
     
-    #Get the result
-    print("The M is", M)
-    print("The number of iteration is", iterations)
-    print("The original Rank Vector is", ori)
-    print("The Converged Rank Vector is", res)
+    #build transition matrix and iterate
+    transition_matrix = buildMatrix(s)
+    matrix_len = transition_matrix[0].size
+    old_pagerank = [1.0/matrix_len for i in range(matrix_len)]
+    vector = np.array([1.0/matrix_len for i in range(matrix_len)])
+    new_pagerank = calculate(np.array(old_pagerank), transition_matrix, vector, BETA)
+    
+    #show the result
+    print("The transition matrix is", transition_matrix)
+    print("The number of iterations is", iterations)
+    print("The Original Rank Vector is", old_pagerank)
+    print("The Converged Rank Vector is", new_pagerank)
     
     
 if __name__ == '__main__':
