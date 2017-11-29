@@ -62,7 +62,7 @@ def calculate(old_rank, M, vector, BETA):
 # check if iterations are done
 def check(first, second):
     for i in range(len(first)):
-        if abs(first[i] - second[i]) >= 1e-6:
+        if first[i] != second[i]:
             return False
     return True
 
