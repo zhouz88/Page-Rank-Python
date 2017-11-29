@@ -37,7 +37,7 @@ def buildMatrix(file):
     matrix_original = [[0 for i in range(size)] for j in range(size)]
     for p in res:
         matrix[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
-        matrix_original[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
+        matrix_original[p[1]][p[0]] = matrix_original[p[1]][p[0]] + 1.0/count_map[p[0]]
 
     # check if dangling nodes in the graph, choose the easier way. So set all the column vector 1.0/matrix_length
     for i in range(size):
