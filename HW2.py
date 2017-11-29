@@ -81,9 +81,9 @@ def main():
     
     #show the result
     print("The transition matrix is\n", transition_matrix)
-    print("The number of iterations is\n", iterations)
     print("The Original Rank Vector is\n", old_pagerank)
     print("The Converged Rank Vector is\n", new_pagerank)
+    print("The number of iterations is\n", iterations)
     
     
 if __name__ == '__main__':
