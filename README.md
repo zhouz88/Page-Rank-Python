@@ -3,7 +3,8 @@
 This is an implementation of Page rank.
 
 1. python HW2.py
-2. Please enter the txt file path in your computer:
+2. Please enter the txt file path in your computer:\n
+   /Users/xxxx/xxxx/Adjcency Matrix.txt
    1 2 1
    0 1 2
    ....
