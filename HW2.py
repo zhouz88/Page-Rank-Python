@@ -34,9 +34,10 @@ def buildMatrix(file):
     # size of the set is the total number of nodes in the original graph 
     size = len(count_set)
     matrix = [[0 for i in range(size)] for j in range(size)]
-    
+    matrix_original = [[0 for i in range(size)] for j in range(size)]
     for p in res:
         matrix[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
+        matrix_original[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
 
     # check if dangling nodes in the graph, choose the easier way. So set all the column vector 1.0/matrix_length
     for i in range(size):
@@ -45,7 +46,7 @@ def buildMatrix(file):
                matrix[j][i] = 1.0/len(matrix)
     
     graph = np.array(matrix)
-    return graph
+    return graph, matrix_original 
 
 #recursively solve the iterations using the transition matrix
 def calculate(old_rank, M, vector, BETA):
@@ -70,17 +71,19 @@ def main():
     BETA = float(input('Please enter the damping factor BETA: '))
     
     #build transition matrix and iterate
-    transition_matrix = buildMatrix(s)
-    matrix_len = transition_matrix[0].size
+    res = buildMatrix(s)
+    transition_matrix = res[1]
+    M = res[0]
+    matrix_len = M[0].size
     old_pagerank = [1.0/matrix_len for i in range(matrix_len)]
     vector = np.array([1.0/matrix_len for i in range(matrix_len)])
-    new_pagerank = calculate(np.array(old_pagerank), transition_matrix, vector, BETA)
+    new_pagerank = calculate(np.array(old_pagerank), M, vector, BETA)
     
     #show the result
-    print("The transition matrix is", transition_matrix)
-    print("The number of iterations is", iterations)
-    print("The Original Rank Vector is", old_pagerank)
-    print("The Converged Rank Vector is", new_pagerank)
+    print("The transition matrix is\n", transition_matrix)
+    print("The number of iterations is\n", iterations)
+    print("The Original Rank Vector is\n", old_pagerank)
+    print("The Converged Rank Vector is\n", new_pagerank)
     
     
 if __name__ == '__main__':
