@@ -10,7 +10,7 @@ def readGraph(file):
     line1 = graph_file.readline()
     count_set = set()
     while line1:
-        edge = line1.split(" ")
+        edge = line1.split()
         start_node = int(edge[0])
         end_node = int(edge[1])
         count_set.add(start_node)
@@ -31,17 +31,26 @@ def buildMatrix(file):
     count_set = read_graph[1]
     res = read_graph[2]
 
+    #mapping the nodes number to range 0, 1, 2, 3.....n - 1
+    nodes_list = list(count_set)
+    nodes_list.sort();
+    nodes_map = {}
+    for i in range(len(nodes_list)):
+        nodes_map[nodes_list[i]] = i
+    
     # size of the set is the total number of nodes in the original graph 
     size = len(count_set)
     matrix = [[0 for i in range(size)] for j in range(size)]
     matrix_original = [[0 for i in range(size)] for j in range(size)]
     for p in res:
-        matrix[p[1]][p[0]] = matrix[p[1]][p[0]] + 1.0/count_map[p[0]]
-        matrix_original[p[1]][p[0]] = matrix_original[p[1]][p[0]] + 1.0/count_map[p[0]]
+        start_node = nodes_map[p[0]]
+        end_node = nodes_map[p[1]]
+        matrix[end_node][start_node] = matrix[end_node][start_node] + 1.0/count_map[p[0]]
+        matrix_original[end_node][start_node]  = matrix_original[end_node][start_node]  + 1.0/count_map[p[0]]
 
     # check if dangling nodes in the graph, choose the easier way. So set all the column vector 1.0/matrix_length
     for i in range(size):
-        if i not in count_map:
+        if nodes_list[i] not in count_map:
             for j in range(size):
                matrix[j][i] = 1.0/len(matrix)
     
@@ -52,11 +61,11 @@ def buildMatrix(file):
 def calculate(old_rank, M, vector, BETA):
     global iterations
     new_rank = BETA*(M.dot(old_rank)) + (1 - BETA)*vector
-    iterations += 1
     
     if check(old_rank, new_rank):
         return new_rank
-    
+
+    iterations += 1
     return calculate(new_rank, M, vector, BETA)
 
 # check if iterations are done
