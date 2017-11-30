@@ -5,10 +5,17 @@ iterations = 0
 # Read graph from file and return the HashMap of "startnodes counting" and a set of total nodes, and a list of all edges
 def readGraph(file):
     graph_file = open(file, 'r')
-    count_map = {}
+    
+    # map for counting the total contributions of a node to other nodes
+    count_map = {}  
+    
+    # a list of edges [0, 1] means 0 contribute to 1
     edge_list = []
-    line1 = graph_file.readline()
+    
+    #a set for counting all the nodes
     count_set = set()
+    
+    line1 = graph_file.readline()
     while line1:
         edge = line1.split()
         start_node = int(edge[0])
@@ -29,9 +36,9 @@ def buildMatrix(file):
     read_graph = readGraph(file)
     count_map = read_graph[0]
     count_set = read_graph[1]
-    res = read_graph[2]
+    edge_list = read_graph[2]
 
-    #mapping the nodes number to range 0, 1, 2, 3.....n - 1
+    #mapping the nodes number (3242, 2, 4, 51, 232, 45, etc) to range 0, 1, 2, 3.....n - 1 by using nodes_map
     nodes_list = list(count_set)
     nodes_list.sort();
     nodes_map = {}
@@ -40,9 +47,10 @@ def buildMatrix(file):
     
     # size of the set is the total number of nodes in the original graph 
     size = len(count_set)
+    
     matrix = [[0 for i in range(size)] for j in range(size)]
     matrix_original = [[0 for i in range(size)] for j in range(size)]
-    for p in res:
+    for p in edge_list:
         start_node = nodes_map[p[0]]
         end_node = nodes_map[p[1]]
         matrix[end_node][start_node] = matrix[end_node][start_node] + 1.0/count_map[p[0]]
