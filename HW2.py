@@ -93,7 +93,7 @@ def main():
     s = input("Please enter the txt file path in your computer: ")
     BETA = float(input('Please enter the damping factor BETA: '))
     
-    #build transition matrix and iterate
+    #build original matrix and iterate
     res = buildMatrix(s)
     M = res[0]
     matrix_len = M[0].size
