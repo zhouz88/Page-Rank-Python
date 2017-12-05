@@ -83,7 +83,7 @@ def calculate(pre_rank, M, BETA):
 # check if iterations are done
 def check(first, second):
     for i in range(len(first)):
-        if first[i] - second[i] > 1e-4:
+        if first[i] - second[i] > 1e-6:
             return False
     return True
 
