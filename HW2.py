@@ -65,16 +65,22 @@ def buildMatrix(file):
     graph = np.array(matrix)
     return graph, matrix_original 
 
-#recursively solve the iterations using the transition matrix
-def calculate(old_rank, M, vector, BETA):
+#return the output transition matrix rank_output_matrixand the Converge rank vector pre_rank
+def calculate(rank, M, BETA):
     global iterations
-    new_rank = BETA*(M.dot(old_rank)) + (1 - BETA)*vector
-    
-    if check(old_rank, new_rank):
-        return new_rank
-
-    iterations += 1
-    return calculate(new_rank, M, vector, BETA)
+    matrix_ones = [[1.0/M[0].size for i in range(M[0].size)] for j in range(M[0].size)]
+    M = BETA*M + (1 - BETA)*np.array(matrix_ones)
+    rank_output_matrix = M
+    pre_rank = rank
+    while True:        
+        cur_rank = np.dot(M, pre_rank)
+        if check(pre_rank, cur_rank):
+            break
+        iterations += 1
+        pre_rank = cur_rank
+        print(rank_output_matrix)
+        rank_output_matrix = np.dot(M, rank_output_matrix)
+    return (rank_output_matrix, pre_rank)
 
 # check if iterations are done
 def check(first, second):
@@ -89,17 +95,15 @@ def main():
     
     #build transition matrix and iterate
     res = buildMatrix(s)
-    transition_matrix = res[1]
     M = res[0]
     matrix_len = M[0].size
-    old_pagerank = [1.0/matrix_len for i in range(matrix_len)]
-    vector = np.array([1.0/matrix_len for i in range(matrix_len)])
-    new_pagerank = calculate(np.array(old_pagerank), M, vector, BETA)
+    pagerank = np.array([1.0/matrix_len for i in range(matrix_len)])
+    result = calculate(np.array(pagerank), M, BETA)
     
     #show the result
-    print("The transition matrix is\n", transition_matrix)
-    print("The Original Rank Vector is\n", old_pagerank)
-    print("The Converged Rank Vector is\n", new_pagerank)
+    print("The transition matrix is\n", result[0])
+    print("The Original Rank Vector is\n", pagerank)
+    print("The Converged Rank Vector is\n", result[1])
     print("The number of iterations is\n", iterations)
     
     
