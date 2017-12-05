@@ -57,35 +57,33 @@ def buildMatrix(file):
         matrix_original[end_node][start_node]  = matrix_original[end_node][start_node]  + 1.0/count_map[p[0]]
 
     # check if dangling nodes in the graph, choose the easier way. So set all the column vector 1.0/matrix_length
+    '''
     for i in range(size):
         if nodes_list[i] not in count_map:
             for j in range(size):
                matrix[j][i] = 1.0/len(matrix)
-    
+    '''
     graph = np.array(matrix)
     return graph, matrix_original 
 
 #return the output transition matrix rank_output_matrixand the Converge rank vector pre_rank
-def calculate(rank, M, BETA):
+def calculate(pre_rank, M, BETA):
     global iterations
-    matrix_ones = [[1.0/M[0].size for i in range(M[0].size)] for j in range(M[0].size)]
-    M = BETA*M + (1 - BETA)*np.array(matrix_ones)
     rank_output_matrix = M
-    pre_rank = rank
+    new_rank = pre_rank
     while True:        
-        cur_rank = np.dot(M, pre_rank)
-        if check(pre_rank, cur_rank):
+        new_rank = BETA * M.dot(pre_rank) + (1 - BETA) * 1/M[0].size
+        if check(pre_rank, new_rank):
             break
         iterations += 1
-        pre_rank = cur_rank
-        print(rank_output_matrix)
+        pre_rank = new_rank
         rank_output_matrix = np.dot(M, rank_output_matrix)
     return (rank_output_matrix, pre_rank)
 
 # check if iterations are done
 def check(first, second):
     for i in range(len(first)):
-        if first[i] != second[i]:
+        if first[i] - second[i] > 1e-4:
             return False
     return True
 
@@ -93,7 +91,7 @@ def main():
     s = input("Please enter the txt file path in your computer: ")
     BETA = float(input('Please enter the damping factor BETA: '))
     
-    #build original matrix and iterate
+    #build transition matrix and iterate
     res = buildMatrix(s)
     M = res[0]
     matrix_len = M[0].size
@@ -101,7 +99,7 @@ def main():
     result = calculate(np.array(pagerank), M, BETA)
     
     #show the result
-    print("The transition matrix is\n", result[0])
+    print("The transition matrix is\n", M)
     print("The Original Rank Vector is\n", pagerank)
     print("The Converged Rank Vector is\n", result[1])
     print("The number of iterations is\n", iterations)
